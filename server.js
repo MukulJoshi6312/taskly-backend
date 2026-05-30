@@ -8,6 +8,7 @@ import authRouter from "./routes/authRoutes.js";
 import taskRouter from "./routes/taskRoutes.js";
 import billingRouter from "./routes/billingRoutes.js";
 import categoryRouter from "./routes/categoryRoutes.js";
+import notificationRouter from "./routes/notificationRoutes.js";
 
 // Fail fast if any required env var is missing.
 const required = [
@@ -33,6 +34,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/task", taskRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/notification", notificationRouter);
 
 app.get("/", (req, res) => res.send("Taskly API is running"));
 

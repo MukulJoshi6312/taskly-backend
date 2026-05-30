@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import { generateCode, hashCode, compareCode, codeExpiry, isExpired } from "../lib/codes.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "../lib/mailer.js";
 import { uploadBufferToCloudinary, deleteFromCloudinary } from "../lib/cloudinary.js";
+import { createNotificationFor } from "./notificationController.js";
 
 const TOKEN_TTL = "7d";
 const VERIFICATION_TTL_MIN = 15;
@@ -108,6 +109,13 @@ export const verifyEmail = async (req, res) => {
     user.verificationCode = null;
     user.verificationExpiresAt = null;
     await recordLogin(user, req);
+
+    // First-ever inbox item — fire-and-forget, won't block the response.
+    void createNotificationFor(user._id, {
+      type: "welcome",
+      title: "Welcome to Taskly 👋",
+      body: "Tap + on the home screen to add your first task.",
+    });
 
     return res.status(200).json({
       success: true,
