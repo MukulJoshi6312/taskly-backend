@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema(
     },
     emailVerified: { type: Boolean, default: false },
 
+    // Subscription tier. In production this is set ONLY by a verified
+    // RevenueCat webhook after a purchase — never by the client directly.
+    plan: { type: String, enum: ["free", "premium"], default: "free" },
+
     // Avatar (hosted on Cloudinary). publicId is kept so we can delete the
     // remote asset when the user replaces or removes their avatar.
     avatarUrl:      { type: String, default: "" },

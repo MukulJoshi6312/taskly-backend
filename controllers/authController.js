@@ -17,6 +17,7 @@ const publicUser = (user) => ({
   name: user.name,
   emailVerified: user.emailVerified,
   avatarUrl: user.avatarUrl,
+  plan: user.plan,
   lastLoginAt: user.lastLoginAt,
   lastLoginDevice: user.lastLoginDevice,
 });

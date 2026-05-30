@@ -1,4 +1,5 @@
 import Task from "../models/Task.js";
+import { FREE_ACTIVE_TASK_LIMIT, isPremium } from "../config/billing.js";
 
 // Every handler below assumes authMiddleware has run and set req.user.
 
@@ -32,6 +33,20 @@ export const getTask = async (req, res) => {
 // POST /api/task — create a task for current user
 export const createTask = async (req, res) => {
   try {
+    // Free-plan gate: cap the number of ACTIVE (incomplete) tasks.
+    // Enforced on the server so a hacked client can't bypass it.
+    if (!isPremium(req.user)) {
+      const activeCount = await Task.countDocuments({ userId: req.user._id, completed: false });
+      if (activeCount >= FREE_ACTIVE_TASK_LIMIT) {
+        return res.status(402).json({
+          success: false,
+          code: "TASK_LIMIT_REACHED",
+          message: `Free plan is limited to ${FREE_ACTIVE_TASK_LIMIT} active tasks. Upgrade to add more.`,
+          limit: FREE_ACTIVE_TASK_LIMIT,
+        });
+      }
+    }
+
     // Important: derive userId from the JWT, NOT from req.body.
     // If we trusted req.body.userId, a logged-in user could create tasks attributed to other users.
     const task = await Task.create({ ...req.body, userId: req.user._id });
